@@ -90,7 +90,7 @@
       <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tip" id="tab-tip">Tip Calculator</button>
       <button class="tab-btn" role="tab" aria-selected="false" aria-controls="convert" id="tab-convert">Unit Converter</button>
       <button class="tab-btn" role="tab" aria-selected="false" aria-controls="text" id="tab-text">Text Counter</button>
-      <button class="tab-btn" role="tab" aria-selected="false" aria-controls="date" id="tab-date">Date Difference</button>
+      <button class="tab-btn" role="tab" aria-selected="false" aria-controls="password" id="tab-password">Password Generator</button>
     </nav>
 
     <!-- Tip Calculator -->
@@ -180,25 +180,26 @@
       </div>
     </section>
 
-    <!-- Date Difference Calculator -->
-    <section id="date" role="tabpanel" class="hidden" aria-labelledby="tab-date">
+    <!-- Password Generator -->
+    <section id="password" role="tabpanel" class="hidden" aria-labelledby="tab-password">
       <div class="grid">
         <div class="card">
-          <h2>Date Difference</h2>
-          <p class="desc">Find the number of days between two dates.</p>
+          <h2>Password Generator</h2>
+          <p class="desc">Create strong random passwords instantly.</p>
 
-          <label for="startDate">Start Date</label>
-          <input type="date" id="startDate">
+          <label for="pwLength">Length</label>
+          <input id="pwLength" type="number" min="4" max="32" value="12" />
 
-          <label for="endDate">End Date</label>
-          <input type="date" id="endDate">
-
-          <div style="display:flex; gap:8px; margin-top:12px;">
-            <button class="btn" id="calcDate">Calculate</button>
-            <button class="btn secondary" id="resetDate">Reset</button>
+          <div style="margin: 12px 0;">
+            <label><input type="checkbox" id="incUpper" checked /> Include Uppercase</label><br>
+            <label><input type="checkbox" id="incNums" checked /> Include Numbers</label><br>
+            <label><input type="checkbox" id="incSyms" checked /> Include Symbols</label>
           </div>
 
-          <div class="out" id="dateOut" aria-live="polite">Choose two dates and click Calculate.</div>
+          <button class="btn" id="genPw">Generate</button>
+          <button class="btn secondary" id="copyPw">Copy</button>
+
+          <div class="out" id="pwOut" aria-live="polite">Click Generate to create a password.</div>
         </div>
       </div>
     </section>
@@ -214,7 +215,7 @@
       {btn: document.getElementById('tab-tip'), panel: document.getElementById('tip')},
       {btn: document.getElementById('tab-convert'), panel: document.getElementById('convert')},
       {btn: document.getElementById('tab-text'), panel: document.getElementById('text')},
-      {btn: document.getElementById('tab-date'), panel: document.getElementById('date')},
+      {btn: document.getElementById('tab-password'), panel: document.getElementById('password')},
     ];
     tabs.forEach(({btn, panel}) => {
       btn.addEventListener('click', () => {
@@ -223,9 +224,8 @@
       });
     });
 
-    const $ = id => document.getElementById(id);
-
     // --- Tip Calculator ---
+    const $ = id => document.getElementById(id);
     $('calcTip').addEventListener('click', () => {
       const bill = parseFloat($('bill').value || '0');
       const tipPct = parseFloat($('tipPercent').value || '0');
@@ -268,29 +268,37 @@
     $('analyze').addEventListener('click', analyzeText);
     $('clearText').addEventListener('click', () => { $('textbox').value = ''; $('textOut').textContent = 'Nothing analyzed yet.'; });
 
-    // --- Date Difference Calculator ---
-    $('calcDate').addEventListener('click', () => {
-      const start = new Date($('startDate').value);
-      const end = new Date($('endDate').value);
+    // --- Password Generator ---
+    function generatePassword(len, upper, nums, syms) {
+      const lowerChars = "abcdefghijklmnopqrstuvwxyz";
+      const upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const numChars = "0123456789";
+      const symChars = "!@#$%^&*()_-+=<>?{}[]";
 
-      if (!start || !end || isNaN(start) || isNaN(end)) {
-        return $('dateOut').textContent = 'Please select valid dates.';
+      let chars = lowerChars;
+      if (upper) chars += upperChars;
+      if (nums) chars += numChars;
+      if (syms) chars += symChars;
+
+      let pwd = "";
+      for (let i = 0; i < len; i++) {
+        pwd += chars.charAt(Math.floor(Math.random() * chars.length));
       }
+      return pwd;
+    }
 
-      const diffMs = end - start;
-      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-      if (diffDays < 0) {
-        $('dateOut').textContent = 'End date must be after start date.';
-      } else {
-        $('dateOut').innerHTML = `Difference: <strong>${diffDays} day(s)</strong>`;
-      }
+    $('genPw').addEventListener('click', () => {
+      const len = Math.max(4, Math.min(32, parseInt($('pwLength').value || '12')));
+      const pw = generatePassword(len, $('incUpper').checked, $('incNums').checked, $('incSyms').checked);
+      $('pwOut').innerHTML = `<strong>${pw}</strong>`;
     });
 
-    $('resetDate').addEventListener('click', () => {
-      $('startDate').value = '';
-      $('endDate').value = '';
-      $('dateOut').textContent = 'Choose two dates and click Calculate.';
+    $('copyPw').addEventListener('click', () => {
+      const pw = $('pwOut').innerText;
+      if (pw && !pw.startsWith("Click")) {
+        navigator.clipboard.writeText(pw);
+        $('pwOut').innerHTML = `<strong>${pw}</strong><br><span class="muted">Copied!</span>`;
+      }
     });
 
     // Accessibility: Enter key triggers primary action if focused on inputs.
@@ -299,8 +307,8 @@
         const active = document.activeElement?.id;
         if (['bill','tipPercent','people'].includes(active)) $('calcTip').click();
         if (['cm','inch'].includes(active)) $('toInch').click();
-        if (['textbox'].includes(active)) $('analyze').click();
-        if (['startDate','endDate'].includes(active)) $('calcDate').click();
+        if (active === 'textbox') $('analyze').click();
+        if (['pwLength'].includes(active)) $('genPw').click();
       }
     });
   </script>
