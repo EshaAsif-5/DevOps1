@@ -31,11 +31,13 @@ docker run -d -p 8080:80 rahatqadeer/devops
 | EC2_SSH_KEY | Private PEM key content for SSH access |
 | DOCKERHUB_USERNAME | Docker Hub username |
 | DOCKERHUB_TOKEN | Docker Hub access token |
+<br>
 
-## Changelog
-| Version | Date | Description |
+## GitHub Secrets Used  
+| Version | Description |
 |--------------|-------------|
-| 1.0 | 02-sep-2025 |  Initial project setup  |
-| 1.1 | 10-oct-2025 | Updated README.md with CI/CD details|
-| 1.2 | 10-oct-2025 | Deploy to EC2 |
+| 1.0 |  Initial project setup |
+| 1.1 | Updated README.md with CI/CD details |
+| 1.2 | AWS EC2 Deployment server |
+
 
