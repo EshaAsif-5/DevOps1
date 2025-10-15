@@ -41,3 +41,4 @@ docker run -d -p 8080:80 rahatqadeer/devops
 | 1.2 | AWS EC2 Deployment server |
 
 
+Updated by Esha Asif
