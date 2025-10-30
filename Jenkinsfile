@@ -41,7 +41,7 @@ pipeline {
                     // Make sure EC2 has Docker installed
                     // Replace <EC2_PUBLIC_IP> with your EC2 IP
                     sh '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@<EC2_PUBLIC_IP> \
+                    ssh -o StrictHostKeyChecking=no ubuntu@16.171.224.225 \
                     "docker pull $IMAGE_NAME:latest && docker run -d -p 80:80 $IMAGE_NAME:latest"
                     '''
                 }
