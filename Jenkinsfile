@@ -2,45 +2,48 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
-        EC2_SERVER = 'ubuntu@16.171.168.47'
-        IMAGE_NAME = 'eshaasif5/devops-demo:latest'
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        IMAGE_NAME = "eshaasif/jenkins-demo"
     }
 
     stages {
-        stage('Pull Code') {
+        stage('Pull Code from GitHub') {
             steps {
-                git branch: 'main', url: 'https://github.com/EshaAsif-5/DevOps1.git'
+                echo 'Pulling latest code from GitHub...'
+                git branch: 'main', url: 'https://github.com/eshaasif/jenkins-demo.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                bat "docker build -t ${IMAGE_NAME} ."
+                script {
+                    echo 'Building Docker image...'
+                    sh 'docker build -t $IMAGE_NAME:latest .'
+                }
             }
         }
 
-        stage('Push to DockerHub') {
+        stage('Push to Docker Hub') {
             steps {
-                bat """
-                docker login -u ${DOCKERHUB_CREDENTIALS_USR} -p ${DOCKERHUB_CREDENTIALS_PSW}
-                docker push ${IMAGE_NAME}
-                """
+                script {
+                    echo 'Pushing image to Docker Hub...'
+                    sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                    sh 'docker push $IMAGE_NAME:latest'
+                }
             }
         }
 
-        stage('Deploy to EC2') {
+        stage('Deploy on EC2 (Optional)') {
             steps {
-                echo "🚀 Deploying container to AWS EC2..."
-                sshagent(['ec2-ssh-key']) {
-                    bat """
-                    ssh -o StrictHostKeyChecking=no ${EC2_SERVER} "
-                        docker pull ${IMAGE_NAME} &&
-                        docker stop devops-demo || true &&
-                        docker rm devops-demo || true &&
-                        docker run -d -p 80:80 --name devops-demo ${IMAGE_NAME}
-                    "
-                    """
+                script {
+                    echo 'Deploying container on EC2 instance...'
+                    // Example SSH command (only if SSH setup done)
+                    // Make sure EC2 has Docker installed
+                    // Replace <EC2_PUBLIC_IP> with your EC2 IP
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no ubuntu@<EC2_PUBLIC_IP> \
+                    "docker pull $IMAGE_NAME:latest && docker run -d -p 80:80 $IMAGE_NAME:latest"
+                    '''
                 }
             }
         }
@@ -48,10 +51,10 @@ pipeline {
 
     post {
         success {
-            echo '✅ Deployment Successful!'
+            echo '✅ Pipeline completed successfully!'
         }
         failure {
-            echo '❌ Build Failed. Check logs.'
+            echo '❌ Pipeline failed.'
         }
     }
 }
