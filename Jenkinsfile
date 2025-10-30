@@ -6,14 +6,15 @@ pipeline {
         IMAGE_NAME = "eshaasif/jenkins-demo"
     }
 
-    stage('Pull Code from GitHub') {
-    steps {
-        echo 'Pulling latest code from GitHub...'
-        git branch: 'main',
-            credentialsId: 'github-creds',
-            url: 'https://github.com/EshaAsif-5/DevOps1.git'
-    }
-}
+    stages {
+        stage('Pull Code from GitHub') {
+            steps {
+                echo 'Pulling latest code from GitHub...'
+                git branch: 'main',
+                    credentialsId: 'github-creds',
+                    url: 'https://github.com/EshaAsif-5/DevOps1.git'
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
@@ -38,9 +39,6 @@ pipeline {
             steps {
                 script {
                     echo 'Deploying container on EC2 instance...'
-                    // Example SSH command (only if SSH setup done)
-                    // Make sure EC2 has Docker installed
-                    // Replace <EC2_PUBLIC_IP> with your EC2 IP
                     sh '''
                     ssh -o StrictHostKeyChecking=no ubuntu@16.171.224.225 \
                     "docker pull $IMAGE_NAME:latest && docker run -d -p 80:80 $IMAGE_NAME:latest"
