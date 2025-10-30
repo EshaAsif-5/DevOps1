@@ -10,7 +10,7 @@ pipeline {
         stage('Pull Code from GitHub') {
             steps {
                 echo 'Pulling latest code from GitHub...'
-                git branch: 'main', url: 'https://github.com/eshaasif/jenkins-demo.git'
+                git branch: 'main', url: 'https://github.com/EshaAsif-5/DevOps1.git'
             }
         }
 
