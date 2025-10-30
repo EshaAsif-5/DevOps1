@@ -20,7 +20,7 @@ pipeline {
             steps {
                 script {
                     echo 'Building Docker image...'
-                    sh 'docker build -t $IMAGE_NAME:latest .'
+                    bat 'docker build -t %IMAGE_NAME%:latest .'
                 }
             }
         }
@@ -29,8 +29,10 @@ pipeline {
             steps {
                 script {
                     echo 'Pushing image to Docker Hub...'
-                    sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-                    sh 'docker push $IMAGE_NAME:latest'
+                    bat '''
+                    echo %DOCKERHUB_CREDENTIALS_PSW% | docker login -u %DOCKERHUB_CREDENTIALS_USR% --password-stdin
+                    docker push %IMAGE_NAME%:latest
+                    '''
                 }
             }
         }
@@ -39,9 +41,9 @@ pipeline {
             steps {
                 script {
                     echo 'Deploying container on EC2 instance...'
-                    sh '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@16.171.224.225 \
-                    "docker pull $IMAGE_NAME:latest && docker run -d -p 80:80 $IMAGE_NAME:latest"
+                    bat '''
+                    ssh -o StrictHostKeyChecking=no ubuntu@16.171.224.225 ^
+                    "docker pull %IMAGE_NAME%:latest && docker run -d -p 80:80 %IMAGE_NAME%:latest"
                     '''
                 }
             }
