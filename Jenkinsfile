@@ -6,13 +6,14 @@ pipeline {
         IMAGE_NAME = "eshaasif/jenkins-demo"
     }
 
-    stages {
-        stage('Pull Code from GitHub') {
-            steps {
-                echo 'Pulling latest code from GitHub...'
-                git branch: 'main', url: 'https://github.com/EshaAsif-5/DevOps1.git'
-            }
-        }
+    stage('Pull Code from GitHub') {
+    steps {
+        echo 'Pulling latest code from GitHub...'
+        git branch: 'main',
+            credentialsId: 'github-creds',
+            url: 'https://github.com/EshaAsif-5/DevOps1.git'
+    }
+}
 
         stage('Build Docker Image') {
             steps {
